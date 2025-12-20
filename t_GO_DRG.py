@@ -7,7 +7,7 @@ from gprofiler import GProfiler
 gp = GProfiler(return_dataframe=True)
 
 GENE_FILES = [
-              "DRG old vs young 319 DEGs.txt"         ]
+              "DRG_oxa_271_genes_FC1.5.txt"         ]
 
 #TOP_N_TERMS = 700
 THEMES = {
