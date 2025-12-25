@@ -37,7 +37,7 @@ ORGANISM = "mmusculus"
 # ORGANISM = "hsapiens"
 
 PVAL_COL_PREFERRED = "p_value_adjusted"
-P_THRESH = 1e-2
+P_THRESH = 5e-2
 
 GO_ASPECT = "BP"   # "BP", "MF", "CC", or "ALL"
 
@@ -53,7 +53,15 @@ THEMES: Dict[str, List[str]] = {
     "Oxidative stress & redox regulation": [
         "oxidative", "redox", "reactive oxygen", "ros", "nitrosative", "nrf2",
         "antioxidant", "glutathione", "superoxide", "peroxidase", "peroxiredoxin",
-        "sod", "catalase", "thioredoxin", "oxidoreductase"
+        "sod", "catalase", "thioredoxin", "oxidoreductase",  "superoxide",
+    "hydrogen peroxide",    "peroxide",    "nitric oxide",    "peroxynitrite",     "NADPH oxidase",
+    "mitochondrial ROS",    "electron transport chain",    "mitochondrial dysfunction",
+    # Redox damage & consequences
+    "oxidative damage",
+    "protein oxidation",
+    "lipid peroxidation",
+    "DNA oxidation",
+    "redox imbalance"
     ],
     "Extracellular matrix & adhesion": [
         "extracellular", "matrix", "adhesion", "integrin", "collagen",
@@ -106,25 +114,39 @@ THEMES: Dict[str, List[str]] = {
     "Myelination & Schwann Cell Biology": [
      "myelin", "schwann cell", "mbp", "mpz", "prx", "pmp22", "node of ranvier", "myelination",   "myelin sheath",   "myelin assembly",   "myelin maintenance",    "axon ensheathment",
     "axonal insulation",  "Schwann cell differentiation",  "Schwann cell proliferation",  "Schwann cell migration",
-    "glial cell",   "glial cell differentiation",   "peripheral glial cell",   "oligodendrocyte",
+    "glial cell", "glial cell differentiation",   "peripheral glial cell",   "oligodendrocyte",
     "axon-glia interaction", "neurofilament organization","lipid biosynthesis", "cholesterol biosynthesis",
     "sphingolipid metabolism", "fatty acid metabolism","nerve development", "peripheral nervous system development",
     "axon development",    "axon guidance",    "nerve regeneration",    "remyelination",    "demyelination"
     ],
 "Fibrosis": [
     "fibrosis","fibrotic","extracellular matrix", "matrix organization","matrix remodeling",
-    "collagen", "collagen fibril",    "collagen biosynthesis",    "collagen organization",
-    "fibronectin","laminin","proteoglycan", "elastin",    "fibroblast activation",
+    "collagen", "collagen fibril","collagen biosynthesis","collagen organization",
+    "fibronectin","laminin","proteoglycan", "elastin","fibroblast activation",
     "fibroblast proliferation", "myofibroblast", "myofibroblast differentiation",
-    "tissue remodeling","wound healing","scar formation","transforming growth factor beta",    "TGF beta",
-    "SMAD signaling",    "profibrotic signaling", "epithelial to mesenchymal transition",
-    "EMT",    "endothelial to mesenchymal transition","EndMT", "lysyl oxidase", "matrix crosslinking",
+    "tissue remodeling","wound healing","scar formation","transforming growth factor beta","TGF beta",
+    "SMAD signaling","profibrotic signaling", "epithelial to mesenchymal transition",
+    "EMT","endothelial to mesenchymal transition","EndMT", "lysyl oxidase", "matrix crosslinking",
     "tissue stiffness", "focal adhesion", "integrin signaling"
+],
+"Adipose Tissue Development": [
+    "adipose tissue", "adipogenesis","adipocyte","adipocyte differentiation", "adipocyte development",
+    "preadipocyte", "preadipocyte differentiation","fat cell differentiation","lipid droplet","lipid storage",
+    "triglyceride metabolism","fatty acid uptake","fatty acid storage","lipogenesis","lipid biosynthetic process",
+    "PPAR gamma", "C/EBP", "insulin signaling", "glucose uptake", "brown adipose tissue", "white adipose tissue",
+    "beige adipocyte", "thermogenesis", "energy homeostasis", "metabolic regulation"
+],
+"Allergy": [
+    "allergy",  "allergic",    "allergic response",    "hypersensitivity",
+    "type I hypersensitivity",    "IgE",    "IgE-mediated",    "Fc epsilon receptor",    "FcεRI",
+    "mast cell",    "mast cell activation",    "mast cell degranulation",    "basophil",
+    "basophil activation",    "histamine",    "histamine release",    "eosinophil",    "eosinophil activation",
+    "type 2 immune response",    "Th2",    "IL-4",    "IL-5",    "IL-13",    "cytokine-mediated signaling",
+    "leukotriene",    "prostaglandin",    "inflammatory mediator release",    "immune hypersensitivity"
 ]
 }
 
 gp = GProfiler(return_dataframe=True)
-
 
 def load_genes(path: str | Path) -> List[str]:
     """Load gene symbols from a text file (one per line)."""
@@ -132,7 +154,6 @@ def load_genes(path: str | Path) -> List[str]:
     genes = [line.strip() for line in path.read_text().splitlines() if line.strip()]
     print(f"Loaded {path.name}: {len(genes)} genes")
     return genes
-
 
 def _pick_pval_column(df: pd.DataFrame) -> str:
     """Pick adjusted p-value column if present; otherwise fall back to raw p-value."""
@@ -183,27 +204,47 @@ def assign_themes(term_name: str) -> list[str]:
     ]
     return matched
 
-
 def aggregate_themes(enr_df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate enrichment results by Theme.
-    - Score: sum of -log10(p) across themed terms
-    - Terms: number of terms assigned to the theme
     """
+    Aggregate enrichment results by Theme.
+    Includes ALL predefined themes, even if they have zero significant terms.
+    """
+    # Initialize all themes with zeros
+    out = pd.DataFrame(
+        {
+            "Theme": list(THEMES.keys()),
+            "Score": 0.0,
+            "Terms": 0,
+        }
+    ).set_index("Theme")
+
     if enr_df.empty:
-        return pd.DataFrame(columns=["Score", "Terms"])
+        return out
 
     df = enr_df.copy()
-    df["Themes"] = df["name"].apply(assign_themes)
-    df = df[df["Themes"].map(len) > 0]
-    df = df.explode("Themes").rename(columns={"Themes": "Theme"})
+#    df["Themes"] = df["name"].apply(assign_themes)
+#    df = df[df["Themes"].map(len) > 0]
+#    df = df.explode("Themes").rename(columns={"Themes": "Theme"})
 
-    themed = (
-        df.dropna(subset=["Theme"])
-        .groupby("Theme", sort=False)
-        .agg(Score=("Score", "sum"), Terms=("Theme", "count"))
-        .sort_values("Score", ascending=False)
+    df = enr_df.copy()
+    df = df.dropna(subset=["Theme"])
+
+
+    agg = (
+        df.groupby("Theme", sort=False)
+        .agg(
+            Score=("Score", "sum"),
+            Terms=("Theme", "count"),
+        )
     )
-    return themed
+
+    # Update initialized table
+    out.update(agg)
+
+    # Sort by score (optional)
+    out = out.sort_values("Score", ascending=False)
+
+    return out
 
 
 def save_theme_table(themed: pd.DataFrame, prefix: str) -> Path:
@@ -211,7 +252,6 @@ def save_theme_table(themed: pd.DataFrame, prefix: str) -> Path:
     out = OUT_DIR / f"{prefix}_themes.tsv"
     themed.to_csv(out, sep="\t")
     return out
-
 
 def plot_theme_bar(themed: pd.DataFrame, title: str, outfile: Path) -> None:
     """Publication-style horizontal bar plot for theme scores."""
@@ -239,15 +279,16 @@ def plot_theme_bar(themed: pd.DataFrame, title: str, outfile: Path) -> None:
     fig.savefig(outfile, dpi=600)
     plt.close(fig)
 
-
 def plot_subterms_bar(enr_df: pd.DataFrame, theme_name: str, prefix: str) -> Optional[Path]:
     """Save a per-theme bar plot of subterms ranked by Score."""
-    sub = enr_df.copy()
-    sub["Themes"] = sub["name"].apply(assign_themes)
-    sub = sub[sub["Themes"].apply(lambda x: theme_name in x)]
-    sub = sub.explode("Themes")
-    sub = sub[sub["Themes"] == theme_name]
-    sub = sub.sort_values("Score", ascending=True)
+  #  sub = enr_df.copy()
+   # sub["Themes"] = sub["name"].apply(assign_themes)
+ #   sub = sub[sub["Themes"].apply(lambda x: theme_name in x)]
+#  sub = sub.explode("Themes")
+ #   sub = sub[sub["Themes"] == theme_name]
+  #  sub = sub.sort_values("Score", ascending=True)
+
+    sub = enr_df[enr_df["Theme"] == theme_name].sort_values("Score", ascending=True)
 
     if sub.empty:
         return None
@@ -270,9 +311,6 @@ def plot_subterms_bar(enr_df: pd.DataFrame, theme_name: str, prefix: str) -> Opt
     plt.close(fig)
     return out
 
-
-
-
 def run_one_gene_file(path: str | Path) -> None:
     path = Path(path)
     prefix = path.stem.replace(" ", "_")
@@ -283,14 +321,6 @@ def run_one_gene_file(path: str | Path) -> None:
 
     enr["All_Themes"] = enr["name"].apply(
         lambda x: "; ".join(assign_themes(x))
-    )
-
-    export_supplementary_go_table_with_intersections(
-        enr_df=enr,
-        gene_file=path,  # path to the file
-        prefix=prefix,
-        out_dir=OUT_DIR,
-        categories={"Process"},  # optional: restrict to Biological Process
     )
 
     if enr.empty:
@@ -313,6 +343,8 @@ def run_one_gene_file(path: str | Path) -> None:
         out_dir=OUT_DIR,
         categories=ncbi_categories_for_aspect(GO_ASPECT),
     )
+    enr["Themes"] = enr["name"].apply(assign_themes)
+    enr = enr.explode("Themes").rename(columns={"Themes": "Theme"})
 
     themed = aggregate_themes(enr)
 
@@ -320,8 +352,11 @@ def run_one_gene_file(path: str | Path) -> None:
     print(f"Theme table saved → {tsv_path}")
 
     png_path = OUT_DIR / f"{prefix}_themes.png"
+
+    themed_nonzero = themed[themed["Score"] > 0]
+
     plot_theme_bar(
-        themed,
+        themed_nonzero,
         title=f"Thematic processes ({path.name})",
         outfile=png_path
     )
@@ -344,15 +379,12 @@ NCBI_GENE_INFO_URL = "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz"
 MOUSE_TAXID = 10090
 # HUMAN_TAXID = 9606
 
-
-
 def _download_if_missing(url: str, out_path: Path) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if out_path.exists() and out_path.stat().st_size > 0:
         return
     print(f"Downloading → {out_path.name}")
     urllib.request.urlretrieve(url, out_path)
-
 
 def _load_mouse_entrez_to_symbol(gene_info_gz: Path, taxid: int = MOUSE_TAXID) -> dict[int, str]:
     """
@@ -378,7 +410,6 @@ def ncbi_categories_for_aspect(go_aspect: str) -> set[str] | None:
     if go_aspect in ("ALL", ""):
         return None
     return {"BP": {"Process"}, "MF": {"Function"}, "CC": {"Component"}}[go_aspect]
-
 
 def _build_goid_to_all_genes(
     gene2go_gz: Path,
@@ -447,8 +478,6 @@ def _build_goid_to_all_genes(
 
     print(f"Cached GO→gene mapping → {cache_file}")
     return go_to_genes
-
-
 
 def export_supplementary_go_table_with_intersections(
     enr_df: pd.DataFrame,
