@@ -1,3 +1,4 @@
+# thematicGO; BerezinLab @2025
 from __future__ import annotations
 
 from pathlib import Path
@@ -25,6 +26,9 @@ GENE_FILES: List[str] = [
     "DRG_oxa_271_genes_FC1.5.txt",
 ]
 
+# DRG_oxa_271_genes_FC1.5.txt
+# Bone_marrow_3691_genes_FC_1,5 genes.txt
+
 OUT_DIR = Path("go_theme_outputs")
 CORR_DIR = Path("theme_correlations")
 SUBTERM_DIR = OUT_DIR / "subterm_barplots"
@@ -37,114 +41,225 @@ ORGANISM = "mmusculus"
 # ORGANISM = "hsapiens"
 
 PVAL_COL_PREFERRED = "p_value_adjusted"
-P_THRESH = 5e-2
+P_THRESH = 0.01
 
 GO_ASPECT = "BP"   # "BP", "MF", "CC", or "ALL"
 
-THEMES: Dict[str, List[str]] = {
-    "Stress & cytokine response": [
-        "stress", "interferon", "cytokine", "inflammatory", "defense"
+from typing import Dict, List
+
+THEMES: Dict[str, Dict[str, object]] = {
+
+    "Stress & cytokine response": {
+        "enabled": True,
+        "keywords": [
+            "stress", "interferon", "cytokine", "inflammatory", "defense"
+        ],
+    },
+
+    "Inflammation & immune signaling": {
+        "enabled": True,
+        "keywords": [
+            "inflammation", "inflammatory", "tnf", "il-1", "il-6", "nf-kb", "toll-like",
+            "interleukin", "chemokine", "ccl", "cxcl", "immune response",
+            "inflammasome", "pattern recognition", "pathogen response"
+        ],
+    },
+
+    "Oxidative stress & redox regulation": {
+        "enabled": True,
+        "keywords": [
+            "oxidative", "redox", "reactive oxygen", "ros", "nitrosative", "nrf2",
+            "antioxidant", "glutathione", "superoxide", "peroxidase", "peroxiredoxin",
+            "sod", "catalase", "thioredoxin", "oxidoreductase",
+            "hydrogen peroxide", "peroxide", "nitric oxide", "peroxynitrite",
+            "nadph oxidase", "mitochondrial ros", "electron transport chain",
+            "mitochondrial dysfunction", "oxidative damage", "protein oxidation",
+            "lipid peroxidation", "dna oxidation", "redox imbalance"
+        ],
+    },
+
+    "Extracellular matrix & adhesion": {
+        "enabled": True,
+        "keywords": [
+            "extracellular", "matrix", "adhesion", "integrin", "collagen",
+            "remodeling", "fibronectin", "laminin", "basement membrane",
+            "mmp", "matrix metalloproteinase", "tenascin", "focal adhesion",
+            "ecm", "tissue remodeling", "stromal", "scaffold", "matrisome",
+            "cell junction", "cell adhesion", "cell-matrix", "desmosome"
+        ],
+    },
+
+    "Metabolic re-wiring": {
+        "enabled": True,
+        "keywords": [
+            "metabolic", "oxidoreductase", "catabolic", "fatty",
+            "one-carbon", "biosynthetic"
+        ],
+    },
+
+    "Hematopoietic & immune commitment": {
+        "enabled": True,
+        "keywords": [
+            "hematopoiet", "myeloid", "lymphoid", "leukocyte", "granulocyte",
+            "erythro", "megakary", "erythropoiet", "myelopoiet", "thrombopoiet",
+            "lymphocyte", "monocyte", "neutrophil", "eosinophil", "basophil",
+            "platelet", "erythrocyte", "anemia", "cytopenia", "pancytopenia",
+            "thrombocytopenia", "leukopenia", "neutropenia", "immune cell",
+            "blood cell", "hematologic", "hematopoiesis", "stem cell", "hsc"
+        ],
+    },
+
+    "Cell-cycle & Apoptosis": {
+        "enabled": True,
+        "keywords": [
+            "cell cycle", "mitotic", "chromosome", "checkpoint",
+            "dna replication", "nuclear division", "apoptosis",
+            "programmed cell death", "caspase"
+        ],
+    },
+
+    "Neuronal Excitability & Synapse": {
+        "enabled": False,
+        "keywords": [
+            "axon", "dendrite", "synapse", "neurotransmitter", "vesicle",
+            "action potential", "ion channel", "potassium", "sodium", "calcium",
+            "glutamate", "gaba", "synaptic", "neurogenesis", "axonogenesis"
+        ],
+    },
+
+
+    "Neurotrophic Signaling & Growth Factors": {
+        "enabled": True,   # ← disables the theme globally
+        "keywords": [
+            "neurotrophin", "ngf", "bdnf", "ntf", "trk", "trka", "trkb", "gdnf",
+            "growth factor", "igf", "egf", "fgf", "receptor tyrosine kinase"
+        ],
+    },
+
+    "Immune-Neuronal Crosstalk": {
+        "enabled": True,
+        "keywords": [
+            "microglia", "macrophage", "satellite glia", "neuroimmune",
+            "neuroinflammation", "cd11b", "cd68", "csf1", "tslp",
+            "complement", "ccr", "cxcr"
+        ],
+    },
+
+    "Pain & Nociception": {
+        "enabled": True,
+        "keywords": [
+            "pain", "nociception", "nociceptor", "hyperalgesia", "allodynia",
+            "trpv1", "trpa1", "scn9a", "piezo", "itch",
+            "sensory perception", "neuropeptide"
+        ],
+    },
+
+    "Oxidative Phosphorylation & Mitochondria": {
+        "enabled": True,
+        "keywords": [
+            "mitochondrial", "oxidative phosphorylation",
+            "electron transport chain", "atp synthase",
+            "complex i", "respiratory chain", "mitophagy"
+        ],
+    },
+
+    "Autophagy & Proteostasis": {
+        "enabled": True,
+        "keywords": [
+            "autophagy", "lysosome", "proteasome",
+            "ubiquitin", "protein folding", "chaperone"
+        ],
+    },
+
+    "Myelination & Schwann Cell Biology": {
+        "enabled": False,
+        "keywords": [
+            "myelin", "schwann cell", "mbp", "mpz", "prx", "pmp22",
+            "node of ranvier", "myelination", "myelin sheath",
+            "axon ensheathment", "remyelination", "demyelination",
+            "schwann cell differentiation", "schwann cell proliferation",
+            "schwann cell migration", "axon guidance", "nerve regeneration"
+        ],
+    },
+
+    "Fibrosis": {
+        "enabled": False,
+        "keywords": [
+            "fibrosis", "fibrotic", "extracellular matrix",
+            "matrix organization", "matrix remodeling",
+            "collagen", "fibronectin", "laminin",
+            "myofibroblast", "tissue remodeling",
+            "tgf beta", "smad signaling", "emt", "endmt"
+        ],
+    },
+
+    "Adipose Tissue Development": {
+        "enabled": False,
+        "keywords": [
+            "adipose tissue", "adipogenesis", "adipocyte",
+            "lipid storage", "lipogenesis",
+            "ppar gamma", "c/ebp", "thermogenesis"
+        ],
+    },
+
+    "Allergy": {
+        "enabled": False,
+        "keywords": [
+            "allergy", "allergic", "hypersensitivity",
+            "ige", "mast cell", "histamine",
+            "th2", "il-4", "il-5", "il-13"
+        ],
+    },
+"Bone remodeling & osteogenesis": {
+    "enabled": False,
+    "keywords": [
+        # Core bone formation / development
+        "osteogenesis", "bone formation", "bone development",
+        "skeletal development", "ossification",
+        "mineralization", "bone mineralization",
+
+        # Osteoblast lineage
+        "osteoblast", "osteoblast differentiation", "osteoblast proliferation",
+        "osteoid", "bone matrix formation",
+        "alkaline phosphatase", "runx2", "osterix", "sp7", "collagen type i",
+
+        # Osteoclast lineage
+        "osteoclast", "osteoclast differentiation", "osteoclastogenesis",
+        "bone resorption", "tartrate-resistant acid phosphatase", "trap",
+        "cathepsin k",
+
+        # Bone remodeling / turnover
+        "bone remodeling", "bone turnover", "skeletal homeostasis",
+
+        # Key signaling pathways
+        "rank", "rankl", "opg",
+        "wnt signaling", "beta-catenin",
+        "bmp", "tgf beta", "smad signaling",
+
+        # Bone–marrow niche
+        "endosteal niche", "bone marrow niche",
+        "osteolineage cell", "hematopoietic niche",
+        "mesenchymal stem cell", "stromal cell",
+
+        # Bone matrix & markers
+        "bone matrix", "hydroxyapatite",
+        "osteocalcin", "osteopontin", "sclerostin",
+
+        # Pathology (optional but informative)
+        "osteoporosis", "osteopenia", "bone loss"
     ],
-    "Inflammation & immune signaling": [
-        "inflammation", "inflammatory", "tnf", "il-1", "il-6", "nf-kb", "toll-like",
-        "interleukin", "chemokine", "ccl", "cxcl", "immune response",
-        "inflammasome", "pattern recognition", "pathogen response"
-    ],
-    "Oxidative stress & redox regulation": [
-        "oxidative", "redox", "reactive oxygen", "ros", "nitrosative", "nrf2",
-        "antioxidant", "glutathione", "superoxide", "peroxidase", "peroxiredoxin",
-        "sod", "catalase", "thioredoxin", "oxidoreductase",  "superoxide",
-    "hydrogen peroxide",    "peroxide",    "nitric oxide",    "peroxynitrite",     "NADPH oxidase",
-    "mitochondrial ROS",    "electron transport chain",    "mitochondrial dysfunction",
-    # Redox damage & consequences
-    "oxidative damage",
-    "protein oxidation",
-    "lipid peroxidation",
-    "DNA oxidation",
-    "redox imbalance"
-    ],
-    "Extracellular matrix & adhesion": [
-        "extracellular", "matrix", "adhesion", "integrin", "collagen",
-        "remodeling", "fibronectin", "laminin", "basement membrane",
-        "mmp", "matrix metalloproteinase", "tenascin", "focal adhesion",
-        "ecm", "tissue remodeling", "stromal", "scaffold", "matrisome",
-        "cell junction", "cell adhesion", "cell-matrix", "desmosome"
-    ],
-    "Metabolic re-wiring": [
-        "metabolic", "oxidoreductase", "catabolic", "fatty",
-        "one-carbon", "biosynthetic"
-    ],
-    "Hematopoietic & immune commitment": [
-        "hematopoiet", "myeloid", "lymphoid", "leukocyte", "granulocyte",
-        "erythro", "megakary", "erythropoiet", "myelopoiet", "thrombopoiet",
-        "lymphocyte", "monocyte", "neutrophil", "eosinophil", "basophil",
-        "platelet", "erythrocyte", "anemia", "cytopenia", "pancytopenia",
-        "thrombocytopenia", "leukopenia", "neutropenia", "immune cell",
-        "blood cell", "hematologic", "hematopoiesis", "stem cell", "hsc"
-    ],
-    "Cell-cycle & Apoptosis": [
-        "cell cycle", "mitotic", "chromosome", "checkpoint",
-        "dna replication", "nuclear division", "apoptosis",
-        "programmed cell death", "caspase"
-    ],
-    "Neuronal Excitability & Synapse": [
-        "axon", "dendrite", "synapse", "neurotransmitter", "vesicle",
-        "action potential", "ion channel", "potassium", "sodium", "calcium",
-        "glutamate", "gaba", "synaptic", "neurogenesis", "axonogenesis"
-    ],
-    "Neurotrophic Signaling & Growth Factors": [
-        "neurotrophin", "ngf", "bdnf", "ntf", "trk", "trka", "trkb", "gdnf",
-        "growth factor", "igf", "egf", "fgf", "receptor tyrosine kinase"
-    ],
-    "Immune-Neuronal Crosstalk": [
-        "microglia", "macrophage", "satellite glia", "neuroimmune", "neuroinflammation",
-        "cd11b", "cd68", "csf1", "tslp", "complement", "ccr", "cxcr"
-    ],
-    "Pain & Nociception": [
-        "pain", "nociception", "nociceptor", "hyperalgesia", "allodynia",
-        "trpv1", "trpa1", "scn9a", "piezo", "itch", "sensory perception", "neuropeptide"
-    ],
-    "Oxidative Phosphorylation & Mitochondria": [
-        "mitochondrial", "oxidative phosphorylation", "electron transport chain",
-        "atp synthase", "complex i", "respiratory chain", "mitophagy"
-    ],
-    "Autophagy & Proteostasis": [
-        "autophagy", "lysosome", "proteasome", "ubiquitin", "protein folding", "chaperone"
-    ],
-    "Myelination & Schwann Cell Biology": [
-     "myelin", "schwann cell", "mbp", "mpz", "prx", "pmp22", "node of ranvier", "myelination",   "myelin sheath",   "myelin assembly",   "myelin maintenance",    "axon ensheathment",
-    "axonal insulation",  "Schwann cell differentiation",  "Schwann cell proliferation",  "Schwann cell migration",
-    "glial cell", "glial cell differentiation",   "peripheral glial cell",   "oligodendrocyte",
-    "axon-glia interaction", "neurofilament organization","lipid biosynthesis", "cholesterol biosynthesis",
-    "sphingolipid metabolism", "fatty acid metabolism","nerve development", "peripheral nervous system development",
-    "axon development",    "axon guidance",    "nerve regeneration",    "remyelination",    "demyelination"
-    ],
-"Fibrosis": [
-    "fibrosis","fibrotic","extracellular matrix", "matrix organization","matrix remodeling",
-    "collagen", "collagen fibril","collagen biosynthesis","collagen organization",
-    "fibronectin","laminin","proteoglycan", "elastin","fibroblast activation",
-    "fibroblast proliferation", "myofibroblast", "myofibroblast differentiation",
-    "tissue remodeling","wound healing","scar formation","transforming growth factor beta","TGF beta",
-    "SMAD signaling","profibrotic signaling", "epithelial to mesenchymal transition",
-    "EMT","endothelial to mesenchymal transition","EndMT", "lysyl oxidase", "matrix crosslinking",
-    "tissue stiffness", "focal adhesion", "integrin signaling"
-],
-"Adipose Tissue Development": [
-    "adipose tissue", "adipogenesis","adipocyte","adipocyte differentiation", "adipocyte development",
-    "preadipocyte", "preadipocyte differentiation","fat cell differentiation","lipid droplet","lipid storage",
-    "triglyceride metabolism","fatty acid uptake","fatty acid storage","lipogenesis","lipid biosynthetic process",
-    "PPAR gamma", "C/EBP", "insulin signaling", "glucose uptake", "brown adipose tissue", "white adipose tissue",
-    "beige adipocyte", "thermogenesis", "energy homeostasis", "metabolic regulation"
-],
-"Allergy": [
-    "allergy",  "allergic",    "allergic response",    "hypersensitivity",
-    "type I hypersensitivity",    "IgE",    "IgE-mediated",    "Fc epsilon receptor",    "FcεRI",
-    "mast cell",    "mast cell activation",    "mast cell degranulation",    "basophil",
-    "basophil activation",    "histamine",    "histamine release",    "eosinophil",    "eosinophil activation",
-    "type 2 immune response",    "Th2",    "IL-4",    "IL-5",    "IL-13",    "cytokine-mediated signaling",
-    "leukotriene",    "prostaglandin",    "inflammatory mediator release",    "immune hypersensitivity"
-]
+},
+    "Cardiac & Muscle Function": {
+        "enabled": False,
+        "keywords": [
+            "heart", "cardiac", "cardiomyocyte",
+            "contraction", "sarcomere",
+            "troponin", "myosin", "arrhythmia",
+            "heart failure", "cardiomyopathy"
+        ],
+    },
 }
+
 
 gp = GProfiler(return_dataframe=True)
 
@@ -195,14 +310,23 @@ def enrich(genes: Iterable[str], p_thresh: float = P_THRESH) -> pd.DataFrame:
     return df
 
 
-def assign_themes(term_name: str) -> list[str]:
-    low = term_name.lower()
-    matched = [
-        theme
-        for theme, keywords in THEMES.items()
-        if any(kw in low for kw in keywords)
-    ]
+def assign_themes(go_term: str) -> list[str]:
+    matched = []
+    term = go_term.lower()
+
+    for theme, cfg in THEMES.items():
+        for kw in cfg["keywords"]:
+            if kw in term:
+                matched.append(theme)
+                break
+
     return matched
+
+def is_theme_enabled(theme: str) -> bool:
+
+    return THEMES.get(theme, {}).get("enabled", True)
+
+
 
 def aggregate_themes(enr_df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -279,6 +403,82 @@ def plot_theme_bar(themed: pd.DataFrame, title: str, outfile: Path) -> None:
     fig.savefig(outfile, dpi=600)
     plt.close(fig)
 
+def plot_theme_bubble(
+    themed: pd.DataFrame,
+    title: str,
+    outfile: Path,
+):
+    """
+    Bubble plot of thematic enrichment.
+    X-axis: cumulative theme score
+    Bubble size: number of GO terms
+    """
+
+    fig, ax = plt.subplots(figsize=(8, max(3, 0.5 * len(themed))), constrained_layout=True)
+
+    y = np.arange(len(themed))
+
+    sizes = themed["Terms"].values
+    scores = themed["Score"].values
+
+    # Scale bubble sizes for visibility
+    size_scaled = 80 + 40 * sizes
+    # Horizontal guidelines for each theme
+    for yi in y:
+        ax.axhline(
+            y=yi,
+            color="lightgray",
+            linestyle=":",
+            linewidth=0.8,
+            zorder=0
+        )
+    ax.scatter(
+        scores,
+        y,
+        s=size_scaled,
+        color="#55A868",
+        alpha=0.75,
+        edgecolor="green",
+        linewidth=0.5,
+    )
+    #color = "#1f77b4"  # classic matplotlib blue
+    #color = "#2E86AB"  # muted scientific blue
+    #color = "#5DA5DA"  # lighter blue
+    #color = "#C44E52"  # muted red
+    #color = "#55A868"  # green
+
+    ax.set_yticks(y)
+    ax.set_yticklabels(themed.index)
+    ax.set_xlabel(r"Cumulative enrichment score (∑ −log$_{10}$(p))")
+    ax.set_title(title, loc="left", weight="bold")
+
+    ax.invert_yaxis()  # highest score on top
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    # Bubble size legend
+    for n in sorted(set(sizes)):
+        ax.scatter([], [],
+                   s=80 + 40 * n,
+                   label=f"{n} terms",
+                   color="#55A868",
+                   alpha=0.75,
+                   edgecolor="green")
+
+    ax.legend(
+        title="Number of GO terms",
+        frameon=False,
+        loc="lower right",
+        bbox_to_anchor=(0.98, 0.2)
+
+    )
+
+    plt.savefig(outfile, dpi=600)
+    plt.close()
+
+    print(f"Theme bubble plot saved → {outfile}")
+
+
 def plot_subterms_bar(enr_df: pd.DataFrame, theme_name: str, prefix: str) -> Optional[Path]:
     """Save a per-theme bar plot of subterms ranked by Score."""
   #  sub = enr_df.copy()
@@ -315,54 +515,107 @@ def run_one_gene_file(path: str | Path) -> None:
     path = Path(path)
     prefix = path.stem.replace(" ", "_")
 
+    # --------------------------------------------------
+    # Load genes and perform enrichment
+    # --------------------------------------------------
     genes = load_genes(path)
     enr = enrich(genes, p_thresh=P_THRESH)
     enr = filter_go_aspect(enr, GO_ASPECT)
-
-    enr["All_Themes"] = enr["name"].apply(
-        lambda x: "; ".join(assign_themes(x))
-    )
 
     if enr.empty:
         print(f"No significant enrichment for {path.name}.")
         return
 
-    # Export the supplementary table
-    # Keep only GO terms (NCBI gene2go is GO-only; KEGG/Reactome cannot be expanded with gene2go)
-    enr_go = enr[enr["native"].astype(str).str.startswith("GO:")].copy()
-
-    if enr_go.empty:
-        print("No GO terms (native starts with 'GO:') found in enrichment results; "
-              "cannot build GO→genes intersections via NCBI gene2go.")
-    else:
-
-     export_supplementary_go_table_with_intersections(
-        enr_df=enr,
-        gene_file=path,
-        prefix=f"{prefix}_{GO_ASPECT}",  # optional: keeps filenames distinct
-        out_dir=OUT_DIR,
-        categories=ncbi_categories_for_aspect(GO_ASPECT),
-    )
+    # --------------------------------------------------
+    # Assign themes (authoritative assignment)
+    # --------------------------------------------------
     enr["Themes"] = enr["name"].apply(assign_themes)
     enr = enr.explode("Themes").rename(columns={"Themes": "Theme"})
 
-    themed = aggregate_themes(enr)
+    # Keep full theme annotation per GO term (for transparency)
+    enr["All_Themes"] = enr.groupby(enr.index)["Theme"].transform(
+        lambda x: "; ".join(sorted({t for t in x if isinstance(t, str)}))
+    )
 
+    # --------------------------------------------------
+    # Restrict to GO terms for gene intersection expansion
+    # --------------------------------------------------
+    enr_go = enr[enr["native"].astype(str).str.startswith("GO:")].copy()
+
+    overlap = None  # default if network cannot be built
+
+    if enr_go.empty:
+        print(
+            "No GO terms found (native does not start with 'GO:'); "
+            "skipping GO→gene intersection and network construction."
+        )
+    else:
+        # --------------------------------------------------
+        # Export supplementary GO table WITH gene intersections
+        # --------------------------------------------------
+        sup_path = export_supplementary_go_table_with_intersections(
+            enr_df=enr_go,
+            gene_file=path,
+            prefix=f"{prefix}_{GO_ASPECT}",
+            out_dir=OUT_DIR,
+            categories=ncbi_categories_for_aspect(GO_ASPECT),
+        )
+
+        sup = pd.read_csv(sup_path, sep="\t")
+
+        # --------------------------------------------------
+        # Build theme–theme overlap matrix
+        # --------------------------------------------------
+        theme_to_genes = build_theme_gene_sets(sup)
+        overlap = compute_theme_overlap(theme_to_genes)
+
+        overlap_tsv = CORR_DIR / f"{prefix}_{GO_ASPECT}_theme_overlap.tsv"
+        overlap.to_csv(overlap_tsv, sep="\t")
+        print(f"Theme overlap matrix saved → {overlap_tsv}")
+
+    # --------------------------------------------------
+    # Aggregate themes ONCE (authoritative theme scores)
+    # --------------------------------------------------
+    themed = aggregate_themes(enr)
+    themed["Enabled"] = themed.index.map(is_theme_enabled)
     tsv_path = save_theme_table(themed, prefix)
     print(f"Theme table saved → {tsv_path}")
 
-    png_path = OUT_DIR / f"{prefix}_themes.png"
+    themed_nonzero = themed[
+        (themed["Score"] > 0)
+        & themed["Enabled"]
+        ]
 
-    themed_nonzero = themed[themed["Score"] > 0]
-
+    # --------------------------------------------------
+    # Plot theme summary bar  and bubble plot
+    # --------------------------------------------------
     plot_theme_bar(
         themed_nonzero,
         title=f"Thematic processes ({path.name})",
-        outfile=png_path
+        outfile=OUT_DIR / f"{prefix}_themes_bar.png",
+    )
+    plot_theme_bubble(
+        themed_nonzero,
+        title=f"Thematic processes ({path.name})",
+        outfile=OUT_DIR / f"{prefix}_themes_bubble.png",
     )
 
-    for theme in themed.index:
+    # --------------------------------------------------
+    # Plot theme–theme overlap network (if available)
+    # --------------------------------------------------
+    if overlap is not None:
+        plot_theme_overlap_network(
+            overlap_df=overlap,
+            theme_scores=themed["Score"],
+            out_file=CORR_DIR / f"{prefix}_{GO_ASPECT}_theme_overlap_network.png",
+        )
+
+    # --------------------------------------------------
+    # Plot subterm barplots per theme
+    # --------------------------------------------------
+    for theme in themed_nonzero.index:
         plot_subterms_bar(enr, theme, prefix)
+
 
 
 def main() -> None:
@@ -609,7 +862,198 @@ def export_supplementary_go_table_with_intersections(
 
     print(f"Supplementary tables saved → {out_tsv} | {out_csv} | {out_xlsx}")
     return out_tsv
+def build_theme_gene_sets(enr_df: pd.DataFrame) -> dict[str, set[str]]:
+    """
+    Build mapping: Theme -> set of genes contributing to that theme.
+    Uses gene-level intersections from the supplementary GO table.
+    """
+    theme_to_genes: dict[str, set[str]] = {}
 
+    for _, r in enr_df.iterrows():
+        theme = r.get("Theme")
+        genes = r.get("Intersection_genes")
+
+        # Skip rows without valid theme or gene list
+        if not isinstance(theme, str):
+            continue
+        if not isinstance(genes, str):
+            continue
+
+        gene_set = {g.strip() for g in genes.split(",") if g.strip()}
+        if not gene_set:
+            continue
+
+        theme_to_genes.setdefault(theme, set()).update(gene_set)
+
+    return theme_to_genes
+
+def compute_theme_overlap(theme_to_genes: dict[str, set[str]]) -> pd.DataFrame:
+    """
+    Compute theme–theme overlap (shared gene counts).
+    """
+    themes = list(theme_to_genes.keys())
+    mat = pd.DataFrame(0, index=themes, columns=themes, dtype=int)
+
+    for t1 in themes:
+        for t2 in themes:
+            mat.loc[t1, t2] = len(theme_to_genes[t1].intersection(theme_to_genes[t2]))
+
+    return mat
+def compute_theme_jaccard(theme_to_genes: dict[str, set[str]]) -> pd.DataFrame:
+    themes = list(theme_to_genes.keys())
+    mat = pd.DataFrame(0.0, index=themes, columns=themes)
+
+    for t1 in themes:
+        for t2 in themes:
+            inter = theme_to_genes[t1] & theme_to_genes[t2]
+            union = theme_to_genes[t1] | theme_to_genes[t2]
+            mat.loc[t1, t2] = len(inter) / len(union) if union else 0.0
+
+    return mat
+import networkx as nx
+
+import networkx as nx
+import numpy as np
+
+def plot_theme_overlap_network(
+    overlap_df: pd.DataFrame,
+    theme_scores: pd.Series,
+    out_file: Path,
+):
+    """
+    Plot a theme–theme overlap network.
+    Nodes = themes (size ∝ cumulative theme score)
+    Edges = shared genes (color ∝ number of shared genes)
+    """
+
+    G = nx.Graph()
+
+    # --------------------------------------------------
+    # Add all themes as nodes
+    # --------------------------------------------------
+    for theme in overlap_df.index:
+        if not is_theme_enabled(theme):
+            continue
+        G.add_node(theme, score=theme_scores.get(theme, 0.0))
+
+
+    # --------------------------------------------------
+    # Add edges (shared genes)
+    # --------------------------------------------------
+    for i, t1 in enumerate(overlap_df.index):
+        for t2 in overlap_df.columns[i + 1:]:
+            shared = overlap_df.loc[t1, t2]
+
+            if (
+                    shared > 0
+                    and is_theme_enabled(t1)
+                    and is_theme_enabled(t2)
+            ):
+                G.add_edge(t1, t2, weight=shared)
+
+    # --------------------------------------------------
+    # Layout (true circular)
+    # --------------------------------------------------
+    pos = nx.circular_layout(G, scale=1.3)
+
+    # --------------------------------------------------
+    # Node sizes
+    # --------------------------------------------------
+    scores = np.array([G.nodes[n]["score"] for n in G.nodes()])
+    if scores.max() > 0:
+        sizes = 300 + 1200 * (scores / scores.max())
+    else:
+        sizes = np.full(len(scores), 300)
+
+    # --------------------------------------------------
+    # Prepare edge colors
+    # --------------------------------------------------
+    edges = list(G.edges(data=True))
+    weights = [d["weight"] for _, _, d in edges]
+    # Normalize weights for edge thickness
+    w_min, w_max = min(weights), max(weights)
+    MIN_EDGE_WIDTH = 1
+    MAX_EDGE_WIDTH = 10
+    if w_min == w_max:
+        widths = [2.0 for _ in weights]
+    else:
+        widths = [
+            MIN_EDGE_WIDTH
+            + (w - w_min) / (w_max - w_min) * (MAX_EDGE_WIDTH - MIN_EDGE_WIDTH)
+            for w in weights
+        ]
+
+    import matplotlib.cm as cm
+    import matplotlib.colors as mcolors
+
+    if weights:
+        norm = mcolors.Normalize(vmin=min(weights), vmax=max(weights))
+        from matplotlib import colormaps
+        cmap = colormaps["jet"]
+        edge_colors = [cmap(norm(w)) for w in weights]
+    else:
+        norm = None
+        edge_colors = "gray"
+
+    # --------------------------------------------------
+    # Plot
+    # --------------------------------------------------
+    fig, ax = plt.subplots(figsize=(8, 8))
+
+    nx.draw_networkx_nodes(
+        G, pos,ax = ax,
+        node_size=sizes,
+        node_color="#4C72B0",
+        alpha=0.9
+    )
+
+    if edges:
+        nx.draw_networkx_edges(
+            G,
+            pos,
+            ax=ax,
+            edgelist=[(u, v) for u, v, _ in edges],
+            edge_color=edge_colors,
+            width=widths,
+            alpha=0.75
+        )
+
+    labels = {k: wrap_label(k) for k in G.nodes()}
+    # Push labels slightly outward from the nodes
+    label_pos = {
+        k: (v[0] * 1.08, v[1] * 1.08)
+        for k, v in pos.items()
+    }
+
+    nx.draw_networkx_labels(
+        G,
+        label_pos,
+        labels=labels,
+        ax=ax,
+        font_size=9,
+        horizontalalignment="center",
+        verticalalignment="center",
+        clip_on=False
+    )
+
+    if weights:
+        sm = cm.ScalarMappable(norm=norm, cmap=cmap)
+        sm.set_array([])
+        cbar = fig.colorbar(sm, ax=ax, shrink=0.6)
+        cbar.set_label("Number of shared genes", rotation=90)
+
+    plt.title("Theme–Theme Gene Overlap Network", loc="left", weight="bold")
+    plt.axis("off")
+    plt.tight_layout()
+    plt.savefig(out_file, dpi=600)
+    plt.close()
+
+    print(f"Theme overlap network saved → {out_file}")
+
+def wrap_label(label: str) -> str:
+    if " & " in label:
+        return label.replace(" & ", "\n& ")
+    return label
 
 if __name__ == "__main__":
     main()

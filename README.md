@@ -20,7 +20,7 @@ Full auditability through automatically generated summary tables and subterm plo
 
 Flexible design supporting Biological Process (BP), Molecular Function (MF), Cellular Component (CC), or ALL
 
-
+Theme–theme overlap network visualization highlighting shared gene content between biological themes
 
 ### Workflow Overview:
 
@@ -70,17 +70,41 @@ GO → gene mappings reconstructed from NCBI gene2go and gene\_info
 
 Input genes intersected case-insensitively with annotated genes
 
+### Theme–Theme Overlap Network (New Feature)
 
+ThematicGO generates an optional theme–theme gene overlap network that visualizes relationships between biological themes based on shared contributing genes.
+
+Network design:
+
+Nodes represent biological themes
+
+Node size is proportional to the cumulative theme enrichment score
+
+Edges indicate shared genes between themes
+
+Edge color encodes the number of shared genes (blue = low overlap, red = high overlap)
+
+Themes are arranged in a circular layout to avoid spatial bias and improve interpretability
+
+This visualization highlights coordinated biological programs while preserving distinct thematic signals and avoiding arbitrary clustering.
 
 ### Visualization \& outputs:
 
-
+##### &nbsp; Main visual outputs:
 
 Theme bar plots (only themes with non-zero scores)
 
-Per-theme subterm plots (GO terms contributing to each theme)
+Per-theme subterm plots showing contributing GO terms
 
-Summary tables documenting GO terms, genes, and intersections
+Theme–theme overlap network illustrating shared gene content
+
+##### &nbsp;Summary tables:
+
+Complete theme summary tables including zero-score themes
+
+GO-term-level tables with gene intersections
+
+Theme overlap matrices documenting shared genes
 
 
 
@@ -120,7 +144,7 @@ Plots exclude zero-score themes for clarity
 
 Python ≥ 3.9
 
-pip install gprofiler-official pandas numpy matplotlib seaborn openpyxl
+pip install gprofiler-official pandas numpy matplotlib seaborn openpyxl networkx
 
 
 
@@ -165,6 +189,10 @@ If you use ThematicGO, please cite the associated manuscript: Zhimu Wang, Leland
 ### Contact:
 
 
-
 For questions, suggestions, or contributions, please contact the Mikhail Berezin (berezinm@wustl.edu) at Washington Unoversity in St. Louis, School of Medicine or open an issue in the repository.
 
+### License:
+
+ThematicGO is freely available for academic and non-profit research use.
+Commercial use requires a separate license.
+See the LICENSE file for full terms.
